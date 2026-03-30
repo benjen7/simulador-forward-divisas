@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forward de Divisas USD/COP — Benjamin Navarro & Laura Hoyos</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--card:#161b22;--card2:#1c2333;--border:#30363d;
+  --primary:#58a6ff;--accent:#7ee787;--warn:#d29922;--danger:#f85149;
+  --text:#c9d1d9;--text2:#8b949e;--text3:#484f58;--white:#f0f6fc;
+  --green-bg:rgba(126,231,135,.08);--red-bg:rgba(248,81,73,.08);--blue-bg:rgba(88,166,255,.08);
+  --radius:10px;--shadow:0 4px 24px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.65;font-size:14px;-webkit-font-smoothing:antialiased}
+::selection{background:var(--primary);color:var(--bg)}
+.hero{background:linear-gradient(160deg,#0d1117 0%,#161b22 40%,#1a1e2e 100%);border-bottom:1px solid var(--border);padding:3rem 2rem 2.5rem;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 50%,rgba(88,166,255,.06) 0%,transparent 50%),radial-gradient(ellipse at 70% 50%,rgba(126,231,135,.04) 0%,transparent 50%);pointer-events:none}
+.hero h1{font-family:'DM Serif Display',serif;font-size:2.4rem;color:var(--white);letter-spacing:-.5px;margin-bottom:.4rem;position:relative}
+.hero .sub{color:var(--text2);font-size:1rem;font-weight:300;position:relative}
+.hero .badge{display:inline-block;background:var(--blue-bg);border:1px solid rgba(88,166,255,.3);color:var(--primary);padding:.25rem .8rem;border-radius:20px;font-size:.75rem;font-weight:500;margin-top:.8rem;position:relative}
+.container{max-width:1380px;margin:0 auto;padding:1.5rem}
+.section-label{font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--white);margin:2.5rem 0 1.2rem;display:flex;align-items:center;gap:.8rem}
+.section-label .num{font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:var(--primary);background:var(--blue-bg);border:1px solid rgba(88,166,255,.25);padding:.2rem .6rem;border-radius:6px}
+.g{display:grid;gap:1.2rem}
+.g2{grid-template-columns:repeat(auto-fit,minmax(420px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.c{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;transition:border-color .2s}
+.c:hover{border-color:rgba(88,166,255,.3)}
+.c h3{font-size:.85rem;color:var(--text2);text-transform:uppercase;letter-spacing:1px;font-weight:500;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.c h3::before{content:'';width:3px;height:14px;background:var(--primary);border-radius:2px;flex-shrink:0}
+label{display:block;font-size:.78rem;color:var(--text2);margin-bottom:.25rem;font-weight:500}
+input[type=number],select{width:100%;padding:.55rem .75rem;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--white);font-family:'IBM Plex Mono',monospace;font-size:.85rem;margin-bottom:.7rem;transition:border-color .2s}
+input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(88,166,255,.12)}
+.btn{background:var(--primary);color:var(--bg);border:none;padding:.65rem 1.8rem;border-radius:8px;font-size:.9rem;cursor:pointer;font-weight:600;transition:all .15s;font-family:'IBM Plex Sans',sans-serif}
+.btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+.m{text-align:center;padding:.9rem .5rem;background:var(--card2);border:1px solid var(--border);border-radius:8px}
+.m .v{font-family:'IBM Plex Mono',monospace;font-size:1.35rem;font-weight:600;color:var(--white);line-height:1.2}
+.m .l{font-size:.68rem;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-top:.3rem}
+.m.green .v{color:var(--accent)}.m.red .v{color:var(--danger)}.m.blue .v{color:var(--primary)}.m.warn .v{color:var(--warn)}
+.dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8rem;margin-bottom:1.5rem}
+.tw{overflow-x:auto;max-height:420px;overflow-y:auto;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.8rem;font-family:'IBM Plex Mono',monospace}
+th{background:var(--card2);color:var(--text2);padding:.6rem .6rem;font-weight:500;text-transform:uppercase;font-size:.7rem;letter-spacing:.5px;position:sticky;top:0;z-index:1;border-bottom:2px solid var(--border);text-align:right}
+th:first-child{text-align:center}
+td{padding:.45rem .6rem;border-bottom:1px solid var(--border);text-align:right;color:var(--text)}
+td:first-child{text-align:center;color:var(--text2)}
+tr:hover{background:rgba(88,166,255,.04)}
+.row-highlight{background:var(--blue-bg)!important}
+.positive{color:var(--accent)}.negative{color:var(--danger)}
+.ch{position:relative;height:340px}
+.tabs{display:flex;gap:.4rem;margin-bottom:1rem}
+.tab{padding:.45rem 1rem;border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:.8rem;background:var(--card2);color:var(--text2);transition:all .15s;font-weight:500}
+.tab.active{background:var(--primary);color:var(--bg);border-color:var(--primary)}
+.tab:hover:not(.active){border-color:var(--primary);color:var(--primary)}
+.formula{background:var(--card2);border:1px solid var(--border);border-left:3px solid var(--primary);padding:.8rem 1rem;border-radius:0 8px 8px 0;font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:var(--primary);margin:.8rem 0;overflow-x:auto}
+.verify{background:var(--green-bg);border:1px solid rgba(126,231,135,.25);border-radius:8px;padding:1rem 1.2rem;margin:1rem 0;font-size:.85rem}
+.verify h4{color:var(--accent);margin-bottom:.5rem;font-size:.85rem}
+.verify code{font-family:'IBM Plex Mono',monospace;color:var(--white);font-size:.82rem}
+.alert{padding:1rem 1.2rem;border-radius:8px;margin:1rem 0}
+.alert-ok{background:var(--green-bg);border:1px solid rgba(126,231,135,.25)}
+.alert-warn{background:var(--red-bg);border:1px solid rgba(248,81,73,.25)}
+.alert-info{background:var(--blue-bg);border:1px solid rgba(88,166,255,.25)}
+.alert h4{margin-bottom:.4rem;font-size:.95rem}
+.alert-ok h4{color:var(--accent)}.alert-warn h4{color:var(--danger)}.alert-info h4{color:var(--primary)}
+.pbar{height:6px;background:var(--card2);border-radius:3px;overflow:hidden;margin:.5rem 0}
+.pbar .fill{height:100%;border-radius:3px;transition:width .5s ease}
+.toc{position:fixed;top:50%;right:1rem;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:.4rem}
+.toc a{width:8px;height:8px;border-radius:50%;background:var(--text3);transition:all .2s;display:block}
+.toc a:hover,.toc a.active{background:var(--primary);transform:scale(1.5)}
+@media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}.hero h1{font-size:1.6rem}.toc{display:none}}
+@media print{body{background:#fff;color:#000}.c{border:1px solid #ccc;page-break-inside:avoid}.hero{background:#f5f5f5}.hero h1,.section-label{color:#000}th{background:#eee;color:#000}td{color:#333}.m .v{color:#000}.formula{border-color:#000;color:#000}}
+</style>
+</head>
+<body>
+<div class="hero">
+<h1>Forward de Divisas USD/COP</h1>
+<p class="sub">Cobertura cambiaria para cr&eacute;dito de maquinaria amarilla &middot; Sistema franc&eacute;s &middot; Cuotas trimestrales</p>
+<span class="badge">Laura Hoyos &middot; Marzo 2026</span>
+</div>
+<nav class="toc" id="toc"></nav>
+<div class="container">
+<div id="dashboardTop" class="dash"></div>
+
+<h2 class="section-label" id="sec1"><span class="num">01</span> Par&aacute;metros del Modelo</h2>
+<div class="g g3">
+<div class="c"><h3>Inversi&oacute;n</h3>
+<label>Valor maquinaria (COP)</label><input type="number" id="valorCOP" value="350000000" step="1000000">
+<label>TRM Spot (COP/USD)</label><input type="number" id="trmSpot" value="3690" step="1">
+<label>Cuota inicial (%)</label><input type="number" id="pctInicial" value="10" step="1" min="0" max="50">
+<div class="g" style="grid-template-columns:1fr 1fr;gap:.5rem">
+<div class="m blue"><div class="v" id="mValUSD">&mdash;</div><div class="l">Valor USD</div></div>
+<div class="m"><div class="v" id="mFinanciar">&mdash;</div><div class="l">A financiar</div></div>
+</div></div>
+<div class="c"><h3>Cr&eacute;dito &mdash; Wells Fargo Equipment Finance</h3>
+<label>Tasa nominal anual USD (%)</label><input type="number" id="tasaUSD" value="6.5" step="0.1">
+<label>Plazo (a&ntilde;os)</label><input type="number" id="plazo" value="10" step="1" min="1" max="30">
+<label>Frecuencia de pago</label><select id="cuotasAnio"><option value="4" selected>Trimestral (4/a&ntilde;o)</option><option value="12">Mensual</option><option value="2">Semestral</option><option value="1">Anual</option></select>
+<div class="g" style="grid-template-columns:1fr 1fr;gap:.5rem">
+<div class="m green"><div class="v" id="mCuota">&mdash;</div><div class="l">Cuota</div></div>
+<div class="m warn"><div class="v" id="mTotalInt">&mdash;</div><div class="l">Total intereses</div></div>
+</div></div>
+<div class="c"><h3>Tasas de referencia & Forward</h3>
+<label>Tasa Fed USA (%)</label><input type="number" id="tasaFed" value="3.75" step="0.25">
+<label>Tasa BanRep COL (%)</label><input type="number" id="tasaBR" value="10.25" step="0.25">
+<label>Cobertura forward (%)</label><input type="number" id="pctForward" value="75" step="5" min="0" max="100">
+<label>A&ntilde;o inicio forwards</label><input type="number" id="inicioFwd" value="6" step="1" min="1" max="9">
+<label>N&uacute;mero de forwards</label><input type="number" id="nFwds" value="4" step="1" min="1" max="6">
+<div class="m blue"><div class="v" id="mDif">&mdash;</div><div class="l">Diferencial tasas</div></div>
+</div></div>
+<div style="text-align:center;margin:1.5rem 0;display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap">
+<button class="btn" onclick="calcularTodo()">&#9654; Calcular Todo</button>
+<button class="btn btn-ghost" onclick="window.print()">&#128424; Imprimir</button>
+</div>
+<div class="verify" id="verifyBox"></div>
+
+<h2 class="section-label" id="sec2"><span class="num">02</span> An&aacute;lisis Fundamental de la TRM</h2>
+<div class="g g2">
+<div class="c"><h3>Contexto macroecon&oacute;mico &middot; Marzo 2026</h3>
+<div style="display:grid;grid-template-columns:auto 1fr;gap:.4rem .8rem;font-size:.85rem;margin-bottom:1rem">
+<span style="color:var(--text2)">TRM actual</span><span style="color:var(--white);font-weight:600">~$3,690 COP/USD</span>
+<span style="color:var(--text2)">Fed Rate</span><span>3.50% &ndash; 3.75% (sin cambios mar-26)</span>
+<span style="color:var(--text2)">BanRep</span><span>10.25% (+100 pbs ene-26)</span>
+<span style="color:var(--text2)">Inflaci&oacute;n COL</span><span>5.29% anual (feb-26)</span>
+<span style="color:var(--text2)">PIB COL 2025</span><span>2.9% estimado</span>
+<span style="color:var(--text2)">Cta. corriente</span><span>-2.4% del PIB</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:.8rem">
+<div><h4 style="color:var(--danger);font-size:.8rem;margin-bottom:.4rem">Presi&oacute;n alcista USD</h4>
+<p style="font-size:.8rem;color:var(--text2)">Conflicto Medio Oriente, elecciones Colombia mayo-26, d&eacute;ficit cuenta corriente 2.4%, expectativas inflaci&oacute;n desancladas 6.2%, aversi&oacute;n a emergentes</p></div>
+<div><h4 style="color:var(--accent);font-size:.8rem;margin-bottom:.4rem">Presi&oacute;n bajista USD</h4>
+<p style="font-size:.8rem;color:var(--text2)">Carry trade por diferencial 6.5%, flujos inversi&oacute;n bonos COL, PIB resiliente 2.9%, BanRep hawkish atrae capital</p></div>
+</div>
+<div class="alert alert-info" style="margin-top:1rem"><h4>Proyecci&oacute;n consenso</h4>
+<p style="font-size:.85rem">Rango <strong style="color:var(--white)">$3,600 &ndash; $4,100</strong> COP/USD. BanRep podr&iacute;a llegar al 12% en junio 2026.</p></div>
+</div>
+<div class="c"><h3>TRM hist&oacute;rica</h3><div class="ch"><canvas id="chartTRM"></canvas></div></div>
+</div>
+
+<h2 class="section-label" id="sec3"><span class="num">03</span> Simulaci&oacute;n de Cr&eacute;dito &middot; Sistema Franc&eacute;s</h2>
+<div class="dash" id="creditMetrics"></div>
+<div class="tabs">
+<div class="tab active" onclick="showTab('tabUSD',this)">USD</div>
+<div class="tab" onclick="showTab('tabCOP',this)">COP</div>
+<div class="tab" onclick="showTab('tabResumen',this)">Resumen anual</div>
+</div>
+<div class="c">
+<div id="tabUSD" class="tw"></div>
+<div id="tabCOP" class="tw" style="display:none"></div>
+<div id="tabResumen" class="tw" style="display:none"></div>
+</div>
+<div class="g g2" style="margin-top:1.2rem">
+<div class="c"><h3>Evoluci&oacute;n del saldo</h3><div class="ch"><canvas id="chartSaldo"></canvas></div></div>
+<div class="c"><h3>Composici&oacute;n: inter&eacute;s vs capital</h3><div class="ch"><canvas id="chartComp"></canvas></div></div>
+</div>
+
+<h2 class="section-label" id="sec4"><span class="num">04</span> Simulaci&oacute;n MBG &middot; Monte Carlo</h2>
+<div class="formula">S(t+&Delta;t) = S(t) &middot; exp[(&mu; &minus; &sigma;&sup2;/2)&Delta;t + &sigma; &middot; &radic;&Delta;t &middot; Z] &nbsp;donde Z ~ N(0,1) &oacute; t-Student(&nu;)</div>
+<div class="g g3">
+<div class="c"><h3>Par&aacute;metros MBG</h3>
+<label>Drift mensual (&mu;)</label><input type="number" id="drift" value="0.002" step="0.0005">
+<label>Volatilidad mensual (&sigma;)</label><input type="number" id="vol" value="0.035" step="0.001">
+<label>Trayectorias (N)</label><input type="number" id="nSim" value="1000" step="100" min="100" max="10000">
+<label>Horizonte (meses)</label><input type="number" id="horizonte" value="120">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+<div><label>Distribuci&oacute;n</label><select id="distType"><option value="normal">Normal</option><option value="tstudent">t-Student</option><option value="both" selected>Ambas</option></select></div>
+<div><label>GL (&nu;)</label><input type="number" id="nuDF" value="5" step="1" min="3" max="50"></div>
+</div>
+<button class="btn" onclick="runMBG()" style="width:100%;margin-top:.5rem">&#9889; Simular Monte Carlo</button>
+</div>
+<div class="c"><h3>Estad&iacute;sticas hist&oacute;ricas TRM</h3>
+<div class="g" style="grid-template-columns:1fr 1fr;gap:.5rem">
+<div class="m"><div class="v">0.18%</div><div class="l">&mu; mensual</div></div>
+<div class="m"><div class="v">3.42%</div><div class="l">&sigma; mensual</div></div>
+<div class="m"><div class="v">~2.15</div><div class="l">Curtosis exc.</div></div>
+<div class="m"><div class="v">&nu;&asymp;5</div><div class="l">GL sugerido</div></div>
+</div>
+<p style="font-size:.78rem;color:var(--text2);margin-top:.8rem">Calibrados con retornos log-mensuales USDCOP=X. Curtosis positiva justifica t-Student.</p>
+</div>
+<div class="c"><h3>M&eacute;tricas de riesgo</h3><div id="riskMetrics" class="g" style="grid-template-columns:1fr 1fr;gap:.5rem"><div class="m"><div class="v">&mdash;</div><div class="l">Ejecutar simulaci&oacute;n</div></div></div></div>
+</div>
+<div class="g g2" style="margin-top:1.2rem">
+<div class="c"><h3>Trayectorias &middot; Normal</h3><div class="ch" style="height:380px"><canvas id="chartMBG_N"></canvas></div></div>
+<div class="c"><h3>Trayectorias &middot; t-Student</h3><div class="ch" style="height:380px"><canvas id="chartMBG_T"></canvas></div></div>
+</div>
+<div class="g g2" style="margin-top:1.2rem">
+<div class="c"><h3>Distribuci&oacute;n TRM final</h3><div class="ch" style="height:380px"><canvas id="chartHist"></canvas></div></div>
+<div class="c"><h3>Percentiles por a&ntilde;o</h3><div class="ch" style="height:380px"><canvas id="chartPercentiles"></canvas></div></div>
+</div>
+
+<h2 class="section-label" id="sec5"><span class="num">05</span> Forward de Divisas &middot; Paridad de Tasas</h2>
+<div class="formula">F(T) = S&#8320; &times; [(1 + r<sub>COL</sub>) / (1 + r<sub>USA</sub>)]<sup>T</sup> &nbsp;|&nbsp; r<sub>COL</sub> = <span id="fRcol">10.25%</span> &nbsp; r<sub>USA</sub> = <span id="fRusa">3.75%</span></div>
+<div class="c"><h3>Precios forward</h3><div id="fwdTable" class="tw"></div></div>
+<div class="g g2" style="margin-top:1.2rem">
+<div class="c"><h3>Forward vs TRM simulada</h3><div class="ch" style="height:380px"><canvas id="chartFwdVsSpot"></canvas></div></div>
+<div class="c"><h3>Payoff del forward</h3><div class="ch" style="height:380px"><canvas id="chartPayoff"></canvas></div></div>
+</div>
+<div class="c" style="margin-top:1.2rem"><h3>An&aacute;lisis de protecci&oacute;n</h3><div id="protAnalysis"></div></div>
+
+<h2 class="section-label" id="sec6"><span class="num">06</span> An&aacute;lisis de Sensibilidad</h2>
+<div class="g g2">
+<div class="c"><h3>Costo total vs TRM</h3><div class="ch"><canvas id="chartSens"></canvas></div></div>
+<div class="c"><h3>Escenarios de TRM</h3><div id="scenarioTable" class="tw"></div></div>
+</div>
+
+<h2 class="section-label" id="sec7"><span class="num">07</span> Flujo Comparativo</h2>
+<div class="c"><div id="flujoTable" class="tw"></div><div class="ch" style="height:350px;margin-top:1rem"><canvas id="chartFlujo"></canvas></div></div>
+
+<h2 class="section-label" id="sec8"><span class="num">08</span> Conclusiones</h2>
+<div id="conclusiones"></div>
+
+<footer style="text-align:center;padding:2rem;color:var(--text3);font-size:.75rem;border-top:1px solid var(--border);margin-top:3rem">
+Forward de Divisas USD/COP &middot; Laura Hoyos &middot; Marzo 2026 &middot; Documento acad&eacute;mico
+</footer>
+</div>
+
+<script>
+const fmt=(n,d=2)=>n.toLocaleString('es-CO',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtCOP=n=>'$'+Math.round(n).toLocaleString('es-CO');
+const fmtUSD=n=>'USD '+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtPct=n=>(n*100).toFixed(2)+'%';
+const fmtK=n=>{if(Math.abs(n)>=1e9)return'$'+fmt(n/1e9,1)+'B';if(Math.abs(n)>=1e6)return'$'+fmt(n/1e6,1)+'M';return fmtCOP(n)};
+let charts={};function dc(id){if(charts[id]){charts[id].destroy();delete charts[id]}}
+function randn(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function randt(nu){let z=randn(),c=0;for(let i=0;i<nu;i++){let n=randn();c+=n*n}return z/Math.sqrt(c/nu)}
+let G={amort:[],forwards:[],mbgN:[],mbgT:[]};
+const cOpts={responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{labels:{color:'#8b949e',font:{size:10}}}},scales:{x:{ticks:{color:'#484f58',maxTicksLimit:10},grid:{color:'#21262d'}},y:{ticks:{color:'#484f58'},grid:{color:'#21262d'}}}};
+
+function getP(){return{valorCOP:+document.getElementById('valorCOP').value,trm:+document.getElementById('trmSpot').value,pctIni:+document.getElementById('pctInicial').value/100,tasaAnual:+document.getElementById('tasaUSD').value/100,plazo:+document.getElementById('plazo').value,cuotasAnio:+document.getElementById('cuotasAnio').value,tasaFed:+document.getElementById('tasaFed').value/100,tasaBR:+document.getElementById('tasaBR').value/100,pctFwd:+document.getElementById('pctForward').value/100,inicioFwd:+document.getElementById('inicioFwd').value,nFwds:+document.getElementById('nFwds').value}}
+function showTab(id,el){['tabUSD','tabCOP','tabResumen'].forEach(t=>{const e=document.getElementById(t);if(e)e.style.display='none'});document.getElementById(id).style.display='block';el.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active')}
+
+function calcCredit(p){
+const valorUSD=p.valorCOP/p.trm,inicial=valorUSD*p.pctIni,monto=valorUSD-inicial;
+const n=p.plazo*p.cuotasAnio,iPer=Math.pow(1+p.tasaAnual,1/p.cuotasAnio)-1;
+const cuota=monto*iPer/(1-Math.pow(1+iPer,-n));
+document.getElementById('mValUSD').textContent=fmtUSD(valorUSD);
+document.getElementById('mFinanciar').textContent=fmtUSD(monto);
+document.getElementById('mCuota').textContent=fmtUSD(cuota);
+document.getElementById('mDif').textContent=fmtPct(p.tasaBR-p.tasaFed);
+let data=[],saldo=monto,totInt=0;
+for(let i=1;i<=n;i++){const interes=saldo*iPer,capital=cuota-interes;totInt+=interes;data.push({num:i,saldoIni:saldo,cuota,interes,capital,saldoFin:saldo-capital,year:Math.ceil(i/p.cuotasAnio)});saldo-=capital}
+G.amort=data;const totCuota=cuota*n;
+document.getElementById('mTotalInt').textContent=fmtUSD(totInt);
+
+document.getElementById('verifyBox').innerHTML=`<h4>&#10003; Verificaci&oacute;n de c&aacute;lculos</h4><code>
+Valor USD = ${fmt(p.valorCOP,0)} / ${fmt(p.trm,0)} = <strong>${fmtUSD(valorUSD)}</strong><br>
+Inicial (${(p.pctIni*100)}%) = ${fmtUSD(inicial)} &rarr; Financiar = ${fmtUSD(monto)}<br>
+i<sub>per</sub> = (1 + ${(p.tasaAnual*100).toFixed(1)}%)<sup>1/${p.cuotasAnio}</sup> &minus; 1 = <strong>${(iPer*100).toFixed(4)}%</strong><br>
+Cuota = ${fmt(monto,2)} &times; ${(iPer*100).toFixed(4)}% / (1 &minus; (1+${(iPer*100).toFixed(4)}%)<sup>&minus;${n}</sup>) = <strong>${fmtUSD(cuota)}</strong><br>
+Total ${n} cuotas: <strong>${fmtUSD(totCuota)}</strong> | Intereses: <strong>${fmtUSD(totInt)}</strong> (${(totInt/monto*100).toFixed(1)}% s/capital)<br>
+Saldo final Q${n}: <strong>${fmtUSD(Math.abs(data[n-1].saldoFin))}</strong> &asymp; 0 &#10003;</code>`;
+
+document.getElementById('dashboardTop').innerHTML=`
+<div class="m blue"><div class="v">${fmtK(p.valorCOP)}</div><div class="l">Inversi&oacute;n COP</div></div>
+<div class="m"><div class="v">${fmtUSD(valorUSD)}</div><div class="l">Inversi&oacute;n USD</div></div>
+<div class="m green"><div class="v">${fmtUSD(cuota)}</div><div class="l">Cuota trimestral</div></div>
+<div class="m warn"><div class="v">${fmtUSD(totInt)}</div><div class="l">Total intereses</div></div>
+<div class="m"><div class="v">${fmtPct(p.tasaBR-p.tasaFed)}</div><div class="l">Dif. tasas</div></div>
+<div class="m blue"><div class="v">${n}</div><div class="l">Cuotas</div></div>`;
+
+document.getElementById('creditMetrics').innerHTML=`
+<div class="m"><div class="v">${fmtUSD(monto)}</div><div class="l">Capital</div></div>
+<div class="m warn"><div class="v">${fmtUSD(totInt)}</div><div class="l">Intereses</div></div>
+<div class="m"><div class="v">${fmtUSD(totCuota)}</div><div class="l">Total pagado</div></div>
+<div class="m"><div class="v">${fmtCOP(totCuota*p.trm)}</div><div class="l">Total COP (TRM cte)</div></div>
+<div class="m blue"><div class="v">${(iPer*100).toFixed(4)}%</div><div class="l">Tasa peri&oacute;dica</div></div>`;
+
+// Tables
+let h='<table><thead><tr><th>#</th><th>A&ntilde;o</th><th>Saldo Ini</th><th>Cuota</th><th>Inter&eacute;s</th><th>Capital</th><th>Saldo Fin</th><th>%Cap</th></tr></thead><tbody>';
+data.forEach(r=>{const cls=r.num>p.inicioFwd*p.cuotasAnio?' class="row-highlight"':'';h+=`<tr${cls}><td>${r.num}</td><td>${r.year}</td><td>${fmtUSD(r.saldoIni)}</td><td>${fmtUSD(r.cuota)}</td><td>${fmtUSD(r.interes)}</td><td>${fmtUSD(r.capital)}</td><td>${fmtUSD(Math.max(0,r.saldoFin))}</td><td>${(r.capital/r.cuota*100).toFixed(1)}%</td></tr>`});
+h+=`<tr style="background:var(--card2);font-weight:600"><td colspan="3">TOTAL</td><td>${fmtUSD(totCuota)}</td><td>${fmtUSD(totInt)}</td><td>${fmtUSD(monto)}</td><td colspan="2"></td></tr></tbody></table>`;
+document.getElementById('tabUSD').innerHTML=h;
+
+let hc='<table><thead><tr><th>#</th><th>TRM</th><th>Saldo COP</th><th>Cuota COP</th><th>Inter&eacute;s COP</th><th>Capital COP</th></tr></thead><tbody>';
+data.forEach(r=>{hc+=`<tr><td>${r.num}</td><td>${fmt(p.trm,0)}</td><td>${fmtCOP(r.saldoIni*p.trm)}</td><td>${fmtCOP(r.cuota*p.trm)}</td><td>${fmtCOP(r.interes*p.trm)}</td><td>${fmtCOP(r.capital*p.trm)}</td></tr>`});
+hc+='</tbody></table>';document.getElementById('tabCOP').innerHTML=hc;
+
+let ha='<table><thead><tr><th>A&ntilde;o</th><th>Cuotas USD</th><th>Inter&eacute;s</th><th>Capital</th><th>Saldo fin</th><th>Total COP</th></tr></thead><tbody>';
+for(let y=1;y<=p.plazo;y++){const yr=data.filter(r=>r.year===y);const ci=yr.reduce((s,r)=>s+r.interes,0),cc=yr.reduce((s,r)=>s+r.capital,0),ct=yr.reduce((s,r)=>s+r.cuota,0),sf=yr[yr.length-1]?.saldoFin||0;
+const cls=y>p.inicioFwd?' class="row-highlight"':'';ha+=`<tr${cls}><td>${y}</td><td>${fmtUSD(ct)}</td><td>${fmtUSD(ci)}</td><td>${fmtUSD(cc)}</td><td>${fmtUSD(Math.max(0,sf))}</td><td>${fmtCOP(ct*p.trm)}</td></tr>`}
+ha+='</tbody></table>';document.getElementById('tabResumen').innerHTML=ha;
+
+// Charts
+const labels=data.map(r=>'Q'+r.num);
+dc('chartSaldo');charts.chartSaldo=new Chart(document.getElementById('chartSaldo'),{type:'line',data:{labels,datasets:[{data:data.map(r=>Math.max(0,r.saldoFin)),borderColor:'#58a6ff',backgroundColor:'rgba(88,166,255,.08)',fill:true,tension:.3,pointRadius:0,borderWidth:2}]},options:{...cOpts,plugins:{legend:{display:false}},scales:{...cOpts.scales,y:{...cOpts.scales.y,ticks:{...cOpts.scales.y.ticks,callback:v=>fmtUSD(v)}}}}});
+
+dc('chartComp');charts.chartComp=new Chart(document.getElementById('chartComp'),{type:'bar',data:{labels,datasets:[
+{label:'Inter\u00e9s',data:data.map(r=>r.interes),backgroundColor:'rgba(248,81,73,.5)',borderColor:'#f85149',borderWidth:1},
+{label:'Capital',data:data.map(r=>r.capital),backgroundColor:'rgba(126,231,135,.5)',borderColor:'#7ee787',borderWidth:1}
+]},options:{...cOpts,scales:{x:{stacked:true,...cOpts.scales.x},y:{stacked:true,...cOpts.scales.y,ticks:{...cOpts.scales.y.ticks,callback:v=>fmtUSD(v)}}}}});
+return{cuota,monto,totInt,totCuota,valorUSD,iPer,n}}
+
+function calcForwards(p){
+G.forwards=[];document.getElementById('fRcol').textContent=(p.tasaBR*100).toFixed(2)+'%';document.getElementById('fRusa').textContent=(p.tasaFed*100).toFixed(2)+'%';
+let h='<table><thead><tr><th>#</th><th>Inicio</th><th>Fin</th><th>T</th><th>S&#8320;</th><th>Factor</th><th>Forward</th><th>Prima</th><th>Prima%</th></tr></thead><tbody>';
+for(let i=0;i<p.nFwds;i++){const yrS=p.inicioFwd+i,yrE=yrS+1,T=yrE,factor=Math.pow((1+p.tasaBR)/(1+p.tasaFed),T),F=p.trm*factor,prima=F-p.trm;
+G.forwards.push({num:i+1,yrStart:yrS,yrEnd:yrE,T,F,prima,factor});
+h+=`<tr><td>${i+1}</td><td>A\u00f1o ${yrS}</td><td>A\u00f1o ${yrE}</td><td>${T}</td><td>${fmt(p.trm,0)}</td><td>${fmt(factor,4)}</td><td style="color:var(--primary);font-weight:600">${fmtCOP(F)}</td><td>${fmtCOP(prima)}</td><td>${(prima/p.trm*100).toFixed(1)}%</td></tr>`}
+h+='</tbody></table>';document.getElementById('fwdTable').innerHTML=h}
+
+function simPaths(S0,mu,sigma,T,N,dist,nu){const paths=[];for(let s=0;s<N;s++){let path=[S0],S=S0;for(let t=1;t<=T;t++){let Z=dist==='normal'?randn():randt(nu);S=S*Math.exp((mu-0.5*sigma*sigma)+sigma*Z);path.push(S)}paths.push(path)}return paths}
+
+function runMBG(){
+const p=getP(),mu=+document.getElementById('drift').value,sigma=+document.getElementById('vol').value,N=+document.getElementById('nSim').value,dist=document.getElementById('distType').value,nu=+document.getElementById('nuDF').value,T=+document.getElementById('horizonte').value;
+const doN=dist==='normal'||dist==='both',doT=dist==='tstudent'||dist==='both';
+if(doN)G.mbgN=simPaths(p.trm,mu,sigma,T,N,'normal',nu);if(doT)G.mbgT=simPaths(p.trm,mu,sigma,T,N,'tstudent',nu);
+
+function plotP(cid,paths,title){dc(cid);const labels=Array.from({length:T+1},(_,i)=>i),ds=[];
+const show=Math.min(80,paths.length);for(let s=0;s<show;s++)ds.push({data:paths[s],borderColor:`hsla(${(s*360/show)%360},60%,60%,.2)`,borderWidth:.5,pointRadius:0,fill:false});
+let mean=Array(T+1).fill(0);paths.forEach(path=>path.forEach((v,i)=>mean[i]+=v));mean=mean.map(v=>v/paths.length);
+ds.push({label:'Media',data:mean,borderColor:'#f0f6fc',borderWidth:2.5,pointRadius:0,fill:false});
+G.forwards.forEach(f=>{const line=new Array(T+1).fill(null);for(let m=f.yrStart*12;m<=Math.min(f.yrEnd*12,T);m++)line[m]=f.F;ds.push({label:`Fwd${f.num}`,data:line,borderColor:'#f85149',borderWidth:2,borderDash:[6,3],pointRadius:0,fill:false})});
+charts[cid]=new Chart(document.getElementById(cid),{type:'line',data:{labels,datasets:ds},options:{...cOpts,plugins:{legend:{display:false}},scales:{...cOpts.scales,x:{...cOpts.scales.x,title:{display:true,text:'Meses',color:'#484f58'}},y:{...cOpts.scales.y,ticks:{...cOpts.scales.y.ticks,callback:v=>fmt(v,0)}}}}})}
+if(doN)plotP('chartMBG_N',G.mbgN,'Normal');if(doT)plotP('chartMBG_T',G.mbgT,'t-Student');
+
+// Histogram
+const finN=doN?G.mbgN.map(p=>p[T]):[],finT=doT?G.mbgT.map(p=>p[T]):[],allF=[...finN,...finT].sort((a,b)=>a-b);
+if(allF.length){const min=allF[0],max=allF[allF.length-1],nB=40,bW=(max-min)/nB,bN=Array(nB).fill(0),bT=Array(nB).fill(0),bL=[];
+for(let b=0;b<nB;b++)bL.push(fmt(min+b*bW+bW/2,0));finN.forEach(v=>{let b=Math.min(Math.floor((v-min)/bW),nB-1);bN[b]++});finT.forEach(v=>{let b=Math.min(Math.floor((v-min)/bW),nB-1);bT[b]++});
+dc('chartHist');const dsH=[];if(doN)dsH.push({label:'Normal',data:bN,backgroundColor:'rgba(88,166,255,.4)',borderColor:'#58a6ff',borderWidth:1});if(doT)dsH.push({label:'t-Student',data:bT,backgroundColor:'rgba(248,81,73,.4)',borderColor:'#f85149',borderWidth:1});
+charts.chartHist=new Chart(document.getElementById('chartHist'),{type:'bar',data:{labels:bL,datasets:dsH},options:cOpts})}
+
+// Stats
+function cS(vals){if(!vals||!vals.length)return null;vals=[...vals].sort((a,b)=>a-b);const n=vals.length,mean=vals.reduce((a,b)=>a+b)/n,std=Math.sqrt(vals.reduce((a,v)=>a+(v-mean)**2,0)/(n-1));
+return{mean,std,p5:vals[Math.floor(n*.05)],p10:vals[Math.floor(n*.1)],p50:vals[Math.floor(n*.5)],p90:vals[Math.floor(n*.9)],p95:vals[Math.floor(n*.95)],min:vals[0],max:vals[n-1]}}
+const sN=cS(finN),sT=cS(finT);
+let rm='<div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">';
+if(sN)rm+=`<div class="m blue"><div class="v">${fmtCOP(sN.mean)}</div><div class="l">Media Normal</div></div><div class="m"><div class="v">${fmtCOP(sN.std)}</div><div class="l">DE Normal</div></div><div class="m"><div class="v">${fmtCOP(sN.p5)}&ndash;${fmtCOP(sN.p95)}</div><div class="l">IC90% Normal</div></div><div class="m green"><div class="v">${fmtCOP(sN.p50)}</div><div class="l">Mediana N</div></div>`;
+if(sT)rm+=`<div class="m red"><div class="v">${fmtCOP(sT.mean)}</div><div class="l">Media t-Stud</div></div><div class="m"><div class="v">${fmtCOP(sT.std)}</div><div class="l">DE t-Stud</div></div><div class="m"><div class="v">${fmtCOP(sT.p5)}&ndash;${fmtCOP(sT.p95)}</div><div class="l">IC90% t-Stud</div></div><div class="m warn"><div class="v">${fmtCOP(sT.max)}</div><div class="l">M&aacute;x t-Stud</div></div>`;
+rm+='</div>';document.getElementById('riskMetrics').innerHTML=rm;
+
+// Percentiles
+dc('chartPercentiles');const yrs=[];for(let y=1;y<=p.plazo;y++)yrs.push(y);
+function gAS(paths){return yrs.map(y=>{const m=y*12,vals=paths.map(pp=>pp[Math.min(m,pp.length-1)]).sort((a,b)=>a-b),n=vals.length;return{p10:vals[Math.floor(n*.1)],p50:vals[Math.floor(n*.5)],p90:vals[Math.floor(n*.9)],mean:vals.reduce((a,b)=>a+b)/n}})}
+const dsP=[];const lbl=yrs.map(y=>'A\u00f1o '+y);
+if(G.mbgN.length){const s=gAS(G.mbgN);dsP.push({label:'P10 N',data:s.map(x=>x.p10),borderColor:'rgba(88,166,255,.2)',borderWidth:1,borderDash:[3,3],pointRadius:0,fill:false},{label:'Media N',data:s.map(x=>x.mean),borderColor:'#58a6ff',borderWidth:2,pointRadius:3,fill:false},{label:'P90 N',data:s.map(x=>x.p90),borderColor:'rgba(88,166,255,.2)',borderWidth:1,borderDash:[3,3],pointRadius:0,fill:false})}
+if(G.mbgT.length){const s=gAS(G.mbgT);dsP.push({label:'P10 t',data:s.map(x=>x.p10),borderColor:'rgba(248,81,73,.2)',borderWidth:1,borderDash:[3,3],pointRadius:0,fill:false},{label:'Media t',data:s.map(x=>x.mean),borderColor:'#f85149',borderWidth:2,pointRadius:3,fill:false},{label:'P90 t',data:s.map(x=>x.p90),borderColor:'rgba(248,81,73,.2)',borderWidth:1,borderDash:[3,3],pointRadius:0,fill:false})}
+dsP.push({label:'Forward',data:yrs.map(y=>{const f=G.forwards.find(f=>f.yrEnd===y);return f?f.F:null}),borderColor:'#d29922',borderWidth:3,pointRadius:5,pointBackgroundColor:'#d29922',fill:false,spanGaps:false});
+charts.chartPercentiles=new Chart(document.getElementById('chartPercentiles'),{type:'line',data:{labels:lbl,datasets:dsP},options:{...cOpts,scales:{...cOpts.scales,y:{...cOpts.scales.y,ticks:{...cOpts.scales.y.ticks,callback:v=>fmt(v,0)}}}}});
+
+// Forward analysis
+let pa='<div class="g g2" style="gap:.8rem">';
+G.forwards.forEach(f=>{const month=f.yrEnd*12;
+function az(paths,name){if(!paths||!paths.length)return'';const spots=paths.map(pp=>pp[Math.min(month,pp.length-1)]),above=spots.filter(s=>s>f.F).length,pct=(above/N*100).toFixed(1),avg=spots.reduce((a,b)=>a+b)/spots.length,ok=pct>50;
+return`<div style="margin-bottom:.5rem"><span style="font-size:.75rem;color:var(--text2)">${name}</span><br><span style="font-size:.78rem">TRM media: <strong>${fmtCOP(avg)}</strong></span><br><div class="pbar"><div class="fill" style="width:${pct}%;background:${ok?'var(--accent)':'var(--danger)'}"></div></div><span style="font-size:.78rem;color:${ok?'var(--accent)':'var(--danger)'}"><strong>${pct}%</strong> protegidos</span></div>`}
+pa+=`<div class="c" style="padding:1rem"><h3 style="font-size:.8rem">Fwd ${f.num} &middot; A&ntilde;o ${f.yrEnd} &middot; F=${fmtCOP(f.F)}</h3>${az(G.mbgN,'Normal')}${az(G.mbgT,'t-Student')}</div>`});
+pa+='</div>';document.getElementById('protAnalysis').innerHTML=pa;
+
+// Payoff
+dc('chartPayoff');if(G.forwards.length){const lf=G.forwards[G.forwards.length-1],m=lf.yrEnd*12,paths=G.mbgN.length?G.mbgN:G.mbgT;
+if(paths.length){const spots=paths.map(pp=>pp[Math.min(m,pp.length-1)]).sort((a,b)=>a-b),nB=50,mn=spots[0],mx=spots[spots.length-1],bW=(mx-mn)/nB,pay=[],lb=[];
+for(let b=0;b<nB;b++){const mid=mn+b*bW+bW/2;lb.push(fmt(mid,0));pay.push(mid-lf.F)}
+charts.chartPayoff=new Chart(document.getElementById('chartPayoff'),{type:'bar',data:{labels:lb,datasets:[{label:`Payoff Fwd${lf.num}`,data:pay,backgroundColor:pay.map(v=>v>0?'rgba(126,231,135,.5)':'rgba(248,81,73,.5)'),borderColor:pay.map(v=>v>0?'#7ee787':'#f85149'),borderWidth:1}]},options:{...cOpts,scales:{...cOpts.scales,x:{...cOpts.scales.x,title:{display:true,text:'TRM Spot',color:'#484f58'}},y:{...cOpts.scales.y,ticks:{...cOpts.scales.y.ticks,callback:v=>fmtCOP(v)}}}}})}}
+
+// FwdVsSpot
+dc('chartFwdVsSpot');function gAvg(paths){return yrs.map(y=>{const m=y*12;const v=paths.map(pp=>pp[Math.min(m,pp.length-1)]);return v.reduce((a,b)=>a+b)/v.length})}
+const ds2=[{label:'Spot cte',data:yrs.map(()=>p.trm),borderColor:'#484f58',borderWidth:1,borderDash:[4,4],pointRadius:0,fill:false}];
+if(G.mbgN.length)ds2.push({label:'Media N',data:gAvg(G.mbgN),borderColor:'#58a6ff',borderWidth:2,pointRadius:3,fill:false});
+if(G.mbgT.length)ds2.push({label:'Media t',data:gAvg(G.mbgT),borderColor:'#f85149',borderWidth:2,pointRadius:3,fill:false});
+ds2.push({label:'Forward',data:yrs.map(y=>{const f=G.forwards.find(f=>f.yrEnd===y);return f?f.F:null}),borderColor:'#d29922',borderWidth:3,pointRadius:6,pointBackgroundColor:'#d29922',fill:false,spanGaps:false});
+charts.chartFwdVsSpot=new Chart(document.getElementById('chartFwdVsSpot'),{type:'line',data:{labels:lbl,datasets:ds2},options:{...cOpts,scales:{...cOpts.scales,y:{...cOpts.scales.y,ticks:{...cOpts.scales.y.ticks,callback:v=>fmt(v,0)}}}}});
+
+renderSensitivity(p)}
+
+function renderSensitivity(p){dc('chartSens');const ca=G.amort[0].cuota*p.cuotasAnio,totUSD=ca*p.plazo,sc=[];
+for(let t=3000;t<=5500;t+=100)sc.push({trm:t,total:totUSD*t});
+const base=totUSD*p.trm;
+charts.chartSens=new Chart(document.getElementById('chartSens'),{type:'line',data:{labels:sc.map(s=>'$'+fmt(s.trm,0)),datasets:[
+{label:'Costo total COP',data:sc.map(s=>s.total),borderColor:'#58a6ff',backgroundColor:'rgba(88,166,255,.08)',fill:true,tension:.2,pointRadius:0,borderWidth:2},
+{label:'Base TRM actual',data:sc.map(()=>base),borderColor:'#d29922',borderWidth:2,borderDash:[6,3],pointRadius:0,fill:false}
+]},options:{...cOpts,scales:{...cOpts.scales,y:{...cOpts.scales.y,ticks:{...cOpts.scales.y.ticks,callback:v=>fmtK(v)}}}}});
+
+const scT=[3200,3500,3690,3900,4100,4500,5000];
+let st='<table><thead><tr><th>TRM</th><th>Total COP</th><th>vs Base</th><th>Impacto</th></tr></thead><tbody>';
+scT.forEach(trm=>{const total=totUSD*trm,dif=total-base,cls=dif>0?'negative':'positive';
+st+=`<tr><td style="text-align:center">${fmtCOP(trm)}</td><td>${fmtK(total)}</td><td class="${cls}">${dif>=0?'+':''}${fmtK(dif)}</td><td class="${cls}">${dif>=0?'+':''}${(dif/base*100).toFixed(1)}%</td></tr>`});
+st+='</tbody></table>';document.getElementById('scenarioTable').innerHTML=st}
+
+function calcFlujo(p){const ca=G.amort[0].cuota*p.cuotasAnio;
+let h='<table><thead><tr><th>A&ntilde;o</th><th>Cuotas USD</th><th>COP s/cob</th><th>TRM Fwd</th><th>COP c/fwd</th><th>Dif</th><th>%</th></tr></thead><tbody>';
+let tS=0,tC=0;const sinA=[],conA=[];
+for(let yr=1;yr<=p.plazo;yr++){const sin=ca*p.trm;let trm=p.trm;const fm=G.forwards.find(f=>f.yrEnd===yr);if(fm)trm=fm.F;const con=ca*trm,dif=sin-con;tS+=sin;tC+=con;sinA.push(sin);conA.push(con);
+const cls=dif>=0?'positive':'negative';h+=`<tr${fm?' class="row-highlight"':''}><td>${yr}</td><td>${fmtUSD(ca)}</td><td>${fmtCOP(sin)}</td><td>${fm?fmtCOP(trm):fmt(trm,0)}</td><td>${fmtCOP(con)}</td><td class="${cls}">${fmtCOP(dif)}</td><td class="${cls}">${(dif/sin*100).toFixed(1)}%</td></tr>`}
+h+=`<tr style="background:var(--card2);font-weight:600"><td>TOTAL</td><td></td><td>${fmtK(tS)}</td><td></td><td>${fmtK(tC)}</td><td class="${tS-tC>=0?'positive':'negative'}">${fmtK(tS-tC)}</td><td></td></tr></tbody></table>`;
+document.getElementById('flujoTable').innerHTML=h;
+
+dc('chartFlujo');charts.chartFlujo=new Chart(document.getElementById('chartFlujo'),{type:'bar',data:{labels:Array.from({length:p.plazo},(_,i)=>'A\u00f1o '+(i+1)),datasets:[
+{label:'Sin cobertura',data:sinA,backgroundColor:'rgba(248,81,73,.4)',borderColor:'#f85149',borderWidth:1},
+{label:'Con forward',data:conA,backgroundColor:'rgba(126,231,135,.4)',borderColor:'#7ee787',borderWidth:1}
+]},options:cOpts});
+
+// Conclusions
+const paths=G.mbgN.length?G.mbgN:G.mbgT;let avgP=0;
+if(paths.length&&G.forwards.length){G.forwards.forEach(f=>{const m=f.yrEnd*12;avgP+=paths.filter(pp=>pp[Math.min(m,pp.length-1)]>f.F).length/paths.length*100});avgP/=G.forwards.length}
+const cobCOP=p.valorCOP*p.pctFwd;
+document.getElementById('conclusiones').innerHTML=`
+<div class="g g2" style="gap:1.2rem">
+<div class="alert alert-info"><h4>1. Estructura del cr&eacute;dito</h4>
+<p style="font-size:.85rem">Cr&eacute;dito Wells Fargo al ${(p.tasaAnual*100).toFixed(1)}% genera ${G.amort.length} cuotas de ${fmtUSD(G.amort[0].cuota)}. Intereses totales: ${fmtUSD(G.amort.reduce((s,r)=>s+r.interes,0))}. En COP (TRM cte): ${fmtK(tS)}.</p></div>
+<div class="alert alert-info"><h4>2. Din&aacute;mica de forwards</h4>
+<p style="font-size:.85rem">Diferencial ${fmtPct(p.tasaBR-p.tasaFed)} genera forwards desde ${fmtCOP(G.forwards[0]?.F||0)} (a&ntilde;o ${G.forwards[0]?.yrEnd||0}) hasta ${fmtCOP(G.forwards[G.forwards.length-1]?.F||0)} (a&ntilde;o ${G.forwards[G.forwards.length-1]?.yrEnd||0}). Primas: ${((G.forwards[0]?.prima||0)/p.trm*100).toFixed(1)}% a ${((G.forwards[G.forwards.length-1]?.prima||0)/p.trm*100).toFixed(1)}%.</p></div>
+<div class="alert ${avgP>50?'alert-ok':'alert-warn'}"><h4>3. Protecci&oacute;n: ${avgP.toFixed(1)}% escenarios</h4>
+<p style="font-size:.85rem">Simulaciones MC (N=${paths.length}) muestran <strong>${avgP.toFixed(1)}%</strong> de escenarios donde TRM > Forward. La t-Student captura eventos extremos m&aacute;s severos.</p>
+<div class="pbar"><div class="fill" style="width:${avgP}%;background:${avgP>50?'var(--accent)':'var(--danger)'}"></div></div></div>
+<div class="alert alert-ok"><h4>4. Recomendaci&oacute;n</h4>
+<p style="font-size:.85rem">Dado inflaci&oacute;n 5.29%, BanRep hawkish (posible 12%), elecciones mayo-26, conflicto Medio Oriente: <strong>la cobertura con forwards es prudente y justificada</strong>. Fija el tipo de cambio en los &uacute;ltimos ${p.nFwds} a&ntilde;os. Cobertura: ${(p.pctFwd*100)}% = ${fmtK(cobCOP)}.</p></div>
+</div>`}
+
+function renderTRMChart(p){dc('chartTRM');
+charts.chartTRM=new Chart(document.getElementById('chartTRM'),{type:'line',data:{labels:['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025','2026'],datasets:[
+{label:'TRM',data:[2743,3051,2951,2956,3281,3693,3743,4810,3822,4095,3770,p.trm],borderColor:'#58a6ff',backgroundColor:'rgba(88,166,255,.06)',fill:true,tension:.3,pointRadius:4,pointBackgroundColor:'#58a6ff',borderWidth:2},
+{label:'Spot actual',data:Array(12).fill(p.trm),borderColor:'#d29922',borderWidth:1.5,borderDash:[6,3],pointRadius:0,fill:false}
+]},options:{...cOpts,scales:{...cOpts.scales,y:{...cOpts.scales.y,ticks:{...cOpts.scales.y.ticks,callback:v=>'$'+fmt(v,0)}}}}})}
+
+function calcularTodo(){const p=getP();calcCredit(p);calcForwards(p);renderTRMChart(p);runMBG();calcFlujo(p)}
+
+document.getElementById('toc').innerHTML=['sec1','sec2','sec3','sec4','sec5','sec6','sec7','sec8'].map(s=>`<a href="#${s}"></a>`).join('');
+window.addEventListener('load',()=>calcularTodo());
+</script>
+</body>
+</html>
